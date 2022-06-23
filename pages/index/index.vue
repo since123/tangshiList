@@ -6,8 +6,10 @@
     <view class="ts-list" v-for="item in data" :key="item._id" @click="read(item._id)">
       <view class="ts-title">
          <text class="ts-name">{{item.title.split('/')[0]}}</text>
-         <text class="ts-dynasty">[{{item.dynasty}}]</text>
-         <text class="ts-author">{{item.author}}</text>
+		 <view>
+			 <text class="ts-dynasty">[{{item.dynasty}}]</text>
+			 <text class="ts-author">{{item.author}}</text>
+		 </view>
       </view>
       <view class="ts-desc">{{ item.text.split('\n')[0] }}</view>
     </view>
@@ -82,5 +84,5 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-// @import 'style.scss';
+@import 'style.scss';
 </style>

@@ -1,7 +1,9 @@
 <template>
   <view class="content" v-if="!loading">
-    <view class="ts-title">{{ detail.title }}</view>
-    <view class="ts-author">[{{ detail.dynasty }}] {{ detail.author }}</view>
+	<view class="ts-title">
+		<view class="title-name">{{ detail.title }}</view>
+		<view class="ts-author">[{{ detail.dynasty }}] {{ detail.author }}</view>
+	</view>
     <view class="ts-content" v-for="item in (detail.text || '').split('\n')" :key="item">{{ item }}</view>
     <view class="ts-subtitle" v-if="detail.translation">译文</view>
     <view class="ts-desc" v-if="detail.translation">{{ detail.translation }}</view>
@@ -47,5 +49,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// @import 'style.scss';
+@import 'style.scss';
 </style>
