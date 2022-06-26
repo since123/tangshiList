@@ -1,6 +1,18 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/song/song",
+			"style": {
+				"navigationBarTitleText": "歌曲"
+			}
+		},
+		{
+			"path": "pages/myCollections/myCollections",
+			"style": {
+				"navigationBarTitleText": "我的收藏"
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "uni-app"
@@ -8,6 +20,15 @@
 		}
 	    ,{
             "path" : "pages/read/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/song/song",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "",

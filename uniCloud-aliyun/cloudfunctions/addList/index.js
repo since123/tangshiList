@@ -8,7 +8,7 @@ exports.main = async (event, context) => {
 		text: 's',
 		author:'m'
 	}
-	await db.collection('tangshi').add(data)
+	await db.collection('music').add(data)
 	//返回数据给客户端
 	return {
 		code: 200,

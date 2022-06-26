@@ -6,7 +6,7 @@
     <view class="ts-list" v-for="item in data" :key="item._id" @click="read(item._id)">
       <view class="ts-title">
          <text class="ts-name">{{item.title.split('/')[0]}}</text>
-		 <view>
+		 <view class="ts-title-right">
 			 <text class="ts-dynasty">[{{item.dynasty}}]</text>
 			 <text class="ts-author">{{item.author}}</text>
 		 </view>
