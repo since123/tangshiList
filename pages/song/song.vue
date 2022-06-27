@@ -20,13 +20,15 @@
 			</view>
 		</view>
 		<view class='song-foot'>
-			<view>
-				<u-slider v-model="value"></u-slider>
+			<view class='slide-con'>
+				<view>{{format(current)}}</view>
+				<u-slider v-model="slideWidth"></u-slider>
+				<view>{{format(duration)}}</view>
 			</view>
 			<view class='song-tool'>
 				<u-button icon='reload' ></u-button>
 				<u-button icon='rewind-left-fill' ></u-button>
-				<u-button icon='play-circle-fill' ></u-button>
+				<u-button :icon="isPlay ? 'pause-circle-fill' : 'play-circle-fill' " @click='play()'></u-button>
 				<u-button icon='rewind-right-fill' ></u-button>
 				<u-button icon='list' ></u-button>
 			</view>
@@ -46,14 +48,56 @@
 					isCollection: '1'
 				},
 				screenHeight: '',
-				value:''
+				audio: uni.createInnerAudioContext(),
+				slideWidth:'',
+				src: '../../static/浆糊音乐 - 错乱底线.mp3',
+				isPlay: false,
+				current: 0, //当前进度(s)
+			    duration: 0, //总时长(s)
 			}
 		},
 		methods: {
-			
+			play(){
+				this.isPlay = !this.isPlay
+				this.audio.src = this.src
+				this.audio.play()
+			},
+			//格式化时长
+			format(num) {
+				return '0'.repeat(2 - String(Math.floor(num / 60)).length) + Math.floor(num / 60) + ':' + '0'.repeat(2 - String(Math.floor(num % 60)).length) + Math.floor(num % 60)
+			}
 		},
 		mounted(){
 			this.screenHeight = uni.getSystemInfoSync().windowHeight
+			this.audio.onCanplay(() => {
+				this.duration = this.audio.duration
+				console.log(this.audio.duration, '音频能够播放了')
+			})
+			//音频进度更新事件
+			this.audio.onTimeUpdate(() => {
+				// console.log('音频进度条发生更新')
+				if (!this.seek) {
+					// console.log('重新更新')
+					this.current = this.audio.currentTime
+				}
+				if (!this.duration) {
+					this.duration = this.audio.duration
+				}
+			})
+					
+		},
+		watch: {
+			current(value) {
+				console.log('value', value)
+				if (this.duration > 0) {
+					if (this.current === this.duration) {
+						this.slideWidth = 100
+						return
+					}
+					// this.slideWidth = parseInt(((parseInt(value) / parseInt(this.duration)) * 100).toFixed(2))
+					this.slideWidth = Number(((value / this.duration) * 100).toFixed(4))
+				}
+			},
 		}
 	}
 </script>
@@ -125,6 +169,13 @@
 	.song-foot {
 		
 		padding:30px 0;
+		.slide-con {
+			display: flex;
+			justify-content: center;
+			.u-slider {
+				width:80%
+			}
+		}
 		.song-tool {
 			display: flex;
 			.u-button {
