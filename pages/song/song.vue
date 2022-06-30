@@ -42,21 +42,14 @@
 </template>
 
 <script>
-	import {encodedlyric}from '../../static/lyric.js'
+	// import {encodedlyric}from '../../static/lyric.js'
 	export default {
 		data() {
 			return {
-				song:{
-					name:'错乱情迷',
-					author: '浆糊音乐',
-					follow: '1',
-					quality:'HQ',
-					isCollection: '1'
-				},
+				song:{},
 				screenHeight: '',
 				audio: uni.createInnerAudioContext(),
 				slideWidth:'',
-				src: '../../static/浆糊音乐 - 错乱底线.mp3',
 				paused: true, //是否处于暂停状态
 				current: 0, //当前进度(s)
 			    duration: 0, //总时长(s),
@@ -64,8 +57,12 @@
 				lyricIndex:0,
 				rotateval:0,
 			    seek: false, //是否处于拖动状态
-				Interval:null // 定时器
+				Interval:null ,// 定时器
+				loadding:false,
 			}
+		},
+		onLoad(option) {
+		  this.read(option.id || '5f64c4cca2a89f21dbd4fd66')
 		},
 		methods: {
 			endMove() {
@@ -104,7 +101,7 @@
 					
 				}
 			},
-			getLyric(){
+			getLyric(encodedlyric){
 				let lyric = decodeURIComponent(escape(atob(encodedlyric)))
 				
 				// 处理歌词，转化成key为时间，value为歌词的对象
@@ -121,7 +118,7 @@
 				         }
 				     })
 				     // 存储数据
-				     this.currentMUsicLyric = lrcObj;
+				     this.currentMUsicLyric =   lrcObj;
 			},
 			rotate(){
 				let that = this
@@ -136,13 +133,36 @@
 					clearInterval(that.Interval)
 					that.Interval = null
 				}
-			}
-		},
-		mounted(){
-			if (this.src) {
-				this.audio.src = this.src
-				// this.autoplay && this.play()
-			}
+			},
+			read(id) {
+				this.loading = true
+				uni.showLoading({
+					title: '加载中'
+				});
+				uniCloud
+				  .callFunction({
+					name: 'read',
+					data: { id }
+				  })
+				  .then(res => {
+					// console.log(res.result.data[0], 1)
+					this.song = res.result.data[0] || {}
+					console.log("this.song",this.song)
+					this.getLyric( this.song.lyric)
+					this.audio.src = this.song.src
+					
+					uni.setNavigationBarTitle({
+					  title: `${this.song.title} - ${this.song.author}`
+					})
+					this.loading = false
+					uni.hideLoading();
+				  })
+			},				
+			
+			
+			},
+			
+			mounted(){
 			this.screenHeight = uni.getSystemInfoSync().windowHeight
 			this.audio.onCanplay(() => {
 				this.duration = this.audio.durationrotate
@@ -179,7 +199,7 @@
 				this.seek = false
 				this.$forceUpdate()
 			})
-			this.getLyric()	
+			// this.getLyric()	
 		},
 		watch: {
 			current(value) {
