@@ -23,12 +23,12 @@
 		<view class='song-foot'>
 			<view class='slide-con'>
 				<view> {{current == 0 ? '00:00' : format(current)}}</view>
-				<u-slider @moving="moveing" @end="endMove" v-model="slideWidth" :unidirectionalDatatTransfer="true">
+				<u-slider @moving="moveing" @end="endMove" v-model="slideWidth" @start="startMove" :unidirectionalDatatTransfer="true">
 				</u-slider>
 				<view>{{format(duration)}}</view>
 			</view>
 			<view class='song-tool'>
-				<u-button icon='reload'></u-button>
+				<u-button icon='reload' @click='playMusic(songId)'></u-button>
 				<u-button icon='rewind-left-fill' @click='prev()'></u-button>
 				<u-button :icon="paused ?   'play-circle-fill':'pause-circle-fill' "
 					@click="audio.paused ? play() : audio.pause()"></u-button>
@@ -39,7 +39,7 @@
 		<u-popup :show="ifShowList" mode="bottom">
 			<view class="song-length">播放列表（{{songList.length}}首）</view>
 			<view v-for="item in songList" :key='item._id' class="song-list">
-				<div class='song-header'>
+				<div class='song-header' @click='playClick(item._id)'>
 					<view class="song-title">{{item.title}}</view>
 					<view class='song-author'>- {{item.author}}</view>
 				</div>
@@ -79,9 +79,9 @@
 		},
 		methods: {
 			endMove() {
-				this.play()
 				const pr = (this.slideWidth / 100) * this.duration
 				this.audio.seek(pr)
+				this.play()
 			},
 			moveing() {
 				console.log(this.seek)
@@ -90,6 +90,9 @@
 				const pr = (this.slideWidth / 100) * this.duration
 				this.current = pr
 				console.log(this.seek)
+			},
+			startMove(){
+			 console.log("move")
 			},
 			//返回prev事件
 			prev() {
@@ -106,18 +109,8 @@
 					this.songId = this.songList[targetIndex - 1]._id
 
 				}
-				this.currentMUsicLyric = {}
-				this.read(this.songId)
-				// 进度条清0
-				this.paused = true
-				// this.audio.play()
-				// 歌词到最上面
-				this.lyricIndex = 0
-				// 图片旋转
-				this.rotateval = 0
-				clearInterval(this.Interval)
-				this.Interval = null
-				// this.audio.play()
+				this.playMusic(this.songId)
+				
 			},
 			//返回next事件
 			next() {
@@ -134,22 +127,13 @@
 					this.songId = this.songList[targetIndex + 1]._id
 
 				}
-				this.currentMUsicLyric = {}
-				this.read(this.songId)
-				// 进度条清0
-				this.paused = true
-
-				// 歌词到最上面
-				this.lyricIndex = 0
-				// 图片旋转
-				this.rotateval = 0
-				clearInterval(this.Interval)
-				this.Interval = null
-				// this.audio.play()
+				this.playMusic(this.songId)
 			},
 
 			play() {
 				this.audio.play()
+				this.audio.autoplay = true
+				
 			},
 			//格式化时长
 			format(num) {
@@ -210,6 +194,7 @@
 						this.song = res.result.data[0] || {}
 						console.log("this.song", this.song)
 						this.getLyric(this.song.lyric)
+						// this.src = 
 						this.audio.src = this.song.src
 						uni.setNavigationBarTitle({
 							title: `${this.song.title} - ${this.song.author}`
@@ -243,6 +228,23 @@
 			openList() {
 				console.log('open')
 				this.ifShowList = true
+			},
+			
+			playMusic(id){
+				this.currentMUsicLyric = {}
+				this.read(id)
+				// 进度条清0
+				this.play()
+				// 歌词到最上面
+				this.lyricIndex = 0
+				// 图片旋转
+				this.rotateval = 0
+				clearInterval(this.Interval)
+				this.Interval = null
+			},
+			playClick(id){
+				this.playMusic(id)
+				this.ifShowList = false
 			}
 		},
 
@@ -251,14 +253,12 @@
 			this.list()
 			this.screenHeight = uni.getSystemInfoSync().windowHeight
 			this.audio.onCanplay(() => {
-				// this.duration = this.audio.durationrotate
-				// this.audio.src = this.src
-				// this.current = 0
 				this.current = this.audio.currentTime
-				// this.current = this.audio.currentTime
 				this.duration = this.audio.duration
+				this.play()
+				
 				console.log('音频能够播放了', this.current)
-				// this.audio.play()
+				
 			})
 			//音频进度更新事件
 			this.audio.onTimeUpdate(() => {
